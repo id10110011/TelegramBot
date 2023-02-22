@@ -4,16 +4,13 @@ import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.TelegramBotsApi;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Message;
-import org.telegram.telegrambots.meta.api.objects.MessageEntity;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import org.telegram.telegrambots.updatesreceivers.DefaultBotSession;
 
 import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.net.Socket;
-import java.net.UnknownHostException;
-import java.util.Optional;
-
 
 public class TGBot extends TelegramLongPollingBot {
 
@@ -73,9 +70,10 @@ public class TGBot extends TelegramLongPollingBot {
         StringBuilder result = new StringBuilder();
 
         result.append(checkPort(ip, 80)).append('\n');
-        //result.append(checkPort(ip, 22)).append('\n');
-        //result.append(checkPort(ip, 21)).append('\n');
-        //result.append(checkPort(ip, 53)).append('\n');
+        result.append(checkPort(ip, 20)).append('\n');
+        result.append(checkPort(ip, 23)).append('\n');
+        result.append(checkPort(ip, 53)).append('\n');
+        result.append(checkPort(ip, 25)).append('\n');
         result.append(checkPort(ip, 443)).append('\n');
 
         return result.toString();
@@ -83,8 +81,11 @@ public class TGBot extends TelegramLongPollingBot {
 
     private String checkPort(final String ip, final int port) {
         StringBuilder stringBuilder = new StringBuilder("Порт " + port);
+        int timeout = 100;
         try {
-            Socket socket = new Socket(ip, port);
+            Socket socket = new Socket();
+            socket.connect(new InetSocketAddress(ip, port), timeout);
+            socket.close();
             stringBuilder.append(" доступен");
         } catch (IOException e) {
             stringBuilder.append(" недоступен");
