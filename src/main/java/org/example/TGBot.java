@@ -163,7 +163,7 @@ public class TGBot extends TelegramLongPollingBot {
         }
     }
 
-    private final String[] domains = {".by", ".ru", ".com", ".org", ".net", ".info", ".xyz"};
+    private final String[] domains = {".by", ".ru", ".com", ".org", ".net", ".info", ".xyz", ".art", ".store", ".site", ".online", ".monster", ".pro", ".best", ".бел", ".рф", ".tech"};
     private String checkDomain(final String name) {
         StringBuilder response = new StringBuilder();
         response.append("Список свободных доменов:").append("\n");
@@ -175,6 +175,13 @@ public class TGBot extends TelegramLongPollingBot {
             }
         }
 
+        if (response.length() < 30) {
+            response = new StringBuilder("Нету свободных доменов из выбранных: ");
+            for (String domain : domains) {
+                response.append(domain).append(", ");
+                response.delete(response.length() - 2, response.length());
+            }
+        }
 
         return response.toString();
     }
@@ -211,8 +218,8 @@ public class TGBot extends TelegramLongPollingBot {
     private void checkMainPorts(Message message, final String ip) {
         StringBuilder response = new StringBuilder("Список портов:\n\n");
 
-        int[] ports = new int[]{17, 20, 21, 22, 25, 42, 53, 67, 80, 110, 123, 135, 143, 443, 514,
-                1701, 3389, 7102, 7105, 8080, 8081, 8082, 8088};
+        int[] ports = new int[]{17, 20, 21, 22, 25, 42, 53, 80, 88, 110, 123, 135, 143, 192, 389, 443, 500, 514,
+                1701, 2195, 2196, 2197, 3389, 7102, 7105, 8080, 8081, 8082, 8088};
 
         SendMessage sendMessage = SendMessage.builder()
                 .text(response.toString())
@@ -244,18 +251,26 @@ public class TGBot extends TelegramLongPollingBot {
         if (isCorrect) {
             JSONRequest jsonRequest = new JSONRequest();
             String jsonPage = jsonRequest.getJSON(address);
-            Gson gson = new Gson();
-            Type collectionType = new TypeToken<Collection<GeopingJSON>>() {}.getType();
-            ArrayList<GeopingJSON> info = gson.fromJson(jsonPage, collectionType);
+            if (!jsonPage.contains("Invalid hostname")) {
+                Gson gson = new Gson();
+                Type collectionType = new TypeToken<Collection<GeopingJSON>>() {
+                }.getType();
+                ArrayList<GeopingJSON> info = gson.fromJson(jsonPage, collectionType);
 
-            for (GeopingJSON geopingJSON : info) {
-                response.append("Сервис ").append(address);
-                if (geopingJSON.isIs_alive())
-                    response.append(" доступен");
-                else
-                    response.append(" не доступен");
-                response.append(" из ");
-                response.append(geopingJSON.getFrom_loc().getCity()).append("\n");
+                for (GeopingJSON geopingJSON : info) {
+                    response.append("Сервис ").append(address);
+                    if (geopingJSON.isIs_alive())
+                        response.append(" доступен");
+                    else
+                        response.append(" не доступен");
+                    response.append(" из ");
+                    response.append(geopingJSON.getFrom_loc().getCity()).append("\n");
+                }
+            } else {
+                response.append("Доступ к данному интернет-ресурсу из Clifton ограничен.").append("\n");
+                response.append("Доступ к данному интернет-ресурсу из London ограничен.").append("\n");
+                response.append("Доступ к данному интернет-ресурсу из Amsterdam ограничен.").append("\n");
+                response.append("Доступ к данному интернет-ресурсу из Frankfurt am Main ограничен.").append("\n");
             }
         } else {
             response.append("Вы ввели несуществующий адрес к интернет-ресурсу.");
